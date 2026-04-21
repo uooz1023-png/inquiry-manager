@@ -25,7 +25,10 @@
   .submit-btn { margin-top: 14px; width: 100%; padding: 10px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity .15s; }
   .submit-btn:hover { opacity: 0.85; }
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .inquiry-card { background: #fff; border: 1px solid #e8e6e0; border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; }
+
+  /* 카드 */
+  .inquiry-card { background: #fff; border: 1px solid #e8e6e0; border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; cursor: pointer; transition: box-shadow .15s, border-color .15s; }
+  .inquiry-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-color: #ccc; }
   .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
   .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
   .card-name { font-size: 15px; font-weight: 600; color: #1a1a1a; }
@@ -47,7 +50,11 @@
   .content-box { background: #f7f6f3; border-radius: 8px; padding: 10px 13px; font-size: 13px; color: #555; line-height: 1.65; margin-bottom: 8px; }
   .action-box { background: #f0faf5; border-radius: 8px; padding: 10px 13px; font-size: 13px; color: #1e6e3a; line-height: 1.65; display: flex; gap: 6px; }
   .action-box::before { content: "→"; font-weight: 700; flex-shrink: 0; }
+  .edit-hint { font-size: 11px; color: #bbb; text-align: right; margin-top: 8px; }
+
   .empty-state { text-align: center; padding: 48px 0; color: #bbb; font-size: 14px; line-height: 2; }
+
+  /* 설정 모달 */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 200; }
   .modal-overlay.hidden { display: none; }
   .modal { background: #fff; border-radius: 16px; padding: 24px; width: 90%; max-width: 420px; }
@@ -57,6 +64,24 @@
   .modal input { width: 100%; border: 1px solid #e0deda; border-radius: 8px; padding: 10px 12px; font-size: 13px; outline: none; margin-bottom: 12px; font-family: inherit; }
   .modal input:focus { border-color: #378ADD; }
   .modal-btn { width: 100%; padding: 11px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+
+  /* 수정 모달 */
+  .edit-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 300; padding: 16px; }
+  .edit-overlay.hidden { display: none; }
+  .edit-modal { background: #fff; border-radius: 16px; padding: 24px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+  .edit-modal h2 { font-size: 16px; font-weight: 600; margin-bottom: 18px; color: #1a1a1a; }
+  .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .edit-group { display: flex; flex-direction: column; gap: 5px; }
+  .edit-group.full { grid-column: 1 / -1; }
+  .edit-group label { font-size: 12px; color: #888; font-weight: 500; }
+  .edit-group input, .edit-group select, .edit-group textarea { border: 1px solid #e0deda; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #1a1a1a; background: #fafaf8; outline: none; transition: border .15s; font-family: inherit; }
+  .edit-group input:focus, .edit-group select:focus, .edit-group textarea:focus { border-color: #378ADD; background: #fff; }
+  .edit-group textarea { resize: vertical; min-height: 70px; }
+  .edit-btn-row { display: flex; gap: 8px; margin-top: 16px; }
+  .edit-save-btn { flex: 1; padding: 10px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .edit-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .edit-cancel-btn { padding: 10px 20px; background: #f0f0f0; color: #555; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+
   .filter-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
   .filter-btn { padding: 5px 14px; border-radius: 99px; border: 1px solid #e0deda; background: #fff; color: #666; font-size: 12px; cursor: pointer; transition: all .15s; }
   .filter-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
@@ -144,11 +169,66 @@
   </div>
 </div>
 
+<!-- 수정 모달 -->
+<div class="edit-overlay hidden" id="editOverlay">
+  <div class="edit-modal">
+    <h2>문의 수정</h2>
+    <div class="edit-grid">
+      <div class="edit-group">
+        <label>이름 *</label>
+        <input type="text" id="e-name" placeholder="이름 입력">
+      </div>
+      <div class="edit-group">
+        <label>전화번호</label>
+        <input type="text" id="e-phone" placeholder="010-0000-0000">
+      </div>
+      <div class="edit-group">
+        <label>채널 *</label>
+        <select id="e-channel">
+          <option value="">선택</option>
+          <option>카채 플레이뷰</option>
+          <option>카채 플레이뷰리뷰어라운지</option>
+          <option>고객센터전화</option>
+          <option>오픈카톡</option>
+          <option>업무폰</option>
+        </select>
+      </div>
+      <div class="edit-group">
+        <label>담당자</label>
+        <input type="text" id="e-manager" placeholder="담당자 이름">
+      </div>
+      <div class="edit-group">
+        <label>처리상태</label>
+        <select id="e-status">
+          <option value="신규">신규</option>
+          <option value="처리중">처리중</option>
+          <option value="완료">완료</option>
+          <option value="보류">보류</option>
+        </select>
+      </div>
+      <div class="edit-group">
+        <label>업체명</label>
+        <input type="text" id="e-store" placeholder="업체명 입력">
+      </div>
+      <div class="edit-group full">
+        <label>문의내용 *</label>
+        <textarea id="e-content" placeholder="문의 내용을 입력하세요"></textarea>
+      </div>
+      <div class="edit-group full">
+        <label>처리결과 / 현재 상태</label>
+        <textarea id="e-result" placeholder="처리 중인 내용 또는 결과를 입력하세요" style="min-height:50px;"></textarea>
+      </div>
+    </div>
+    <div class="edit-btn-row">
+      <button class="edit-cancel-btn" onclick="closeEditModal()">취소</button>
+      <button class="edit-save-btn" id="editSaveBtn" onclick="saveEdit()">저장하기</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const DB_ID = '3490bdab578f80b5aee2e845afcc475f';
 const NOTION_API = 'https://api.notion.com/v1';
-
-// 여러 프록시 순서대로 시도 (하나 막히면 다음으로 자동 전환)
 const PROXIES = [
   t => `https://corsproxy.io/?${encodeURIComponent(t)}`,
   t => `https://api.allorigins.win/raw?url=${encodeURIComponent(t)}`,
@@ -157,6 +237,7 @@ const PROXIES = [
 
 let apiKey = localStorage.getItem('notion_api_key') || '';
 let currentFilter = '전체';
+let editingPageId = null;
 
 function init() {
   if (apiKey) {
@@ -297,8 +378,10 @@ function renderCard(page) {
   const [bg, fg] = avatarColor(name);
   const dateStr = formatDateTime(dateRaw);
 
+  const data = encodeURIComponent(JSON.stringify({ id: page.id, name, phone, channel, status, store, content, result, manager }));
+
   return `
-  <div class="inquiry-card">
+  <div class="inquiry-card" onclick="openEditModal('${data}')">
     <div class="card-header">
       <div class="avatar" style="background:${bg};color:${fg}">${initials}</div>
       <div>
@@ -317,7 +400,64 @@ function renderCard(page) {
     </div>
     ${content ? `<div class="content-box">${content}</div>` : ''}
     ${result  ? `<div class="action-box">${result}</div>`   : ''}
+    <div class="edit-hint">클릭해서 수정</div>
   </div>`;
+}
+
+function openEditModal(dataEncoded) {
+  const d = JSON.parse(decodeURIComponent(dataEncoded));
+  editingPageId = d.id;
+
+  document.getElementById('e-name').value    = d.name    || '';
+  document.getElementById('e-phone').value   = d.phone   || '';
+  document.getElementById('e-channel').value = d.channel || '';
+  document.getElementById('e-manager').value = d.manager || '';
+  document.getElementById('e-status').value  = d.status  || '신규';
+  document.getElementById('e-store').value   = d.store   || '';
+  document.getElementById('e-content').value = d.content || '';
+  document.getElementById('e-result').value  = d.result  || '';
+
+  document.getElementById('editOverlay').classList.remove('hidden');
+}
+
+function closeEditModal() {
+  document.getElementById('editOverlay').classList.add('hidden');
+  editingPageId = null;
+}
+
+async function saveEdit() {
+  if (!editingPageId) return;
+  const btn = document.getElementById('editSaveBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+
+  const body = {
+    properties: {
+      '이름':     { title:        [{ text: { content: document.getElementById('e-name').value.trim() } }] },
+      '전화번호': { phone_number: document.getElementById('e-phone').value.trim() || null },
+      '채널':     { select:       { name: document.getElementById('e-channel').value } },
+      '담당자':   { rich_text:    [{ text: { content: document.getElementById('e-manager').value.trim() } }] },
+      '처리상태': { select:       { name: document.getElementById('e-status').value } },
+      '업체':     { rich_text:    [{ text: { content: document.getElementById('e-store').value.trim() } }] },
+      '문의내용': { rich_text:    [{ text: { content: document.getElementById('e-content').value.trim() } }] },
+      '처리결과': { rich_text:    [{ text: { content: document.getElementById('e-result').value.trim() } }] },
+    }
+  };
+
+  try {
+    await notionFetch(`/pages/${editingPageId}`, 'PATCH', body);
+    btn.textContent = '저장 완료! ✓';
+    setTimeout(() => {
+      btn.textContent = '저장하기';
+      btn.disabled = false;
+      closeEditModal();
+      loadInquiries();
+    }, 1000);
+  } catch (e) {
+    alert('저장 실패!\n' + e.message.slice(0, 100));
+    btn.textContent = '저장하기';
+    btn.disabled = false;
+  }
 }
 
 async function submitInquiry() {
@@ -332,7 +472,6 @@ async function submitInquiry() {
   btn.textContent = '저장 중...';
 
   const now = new Date().toISOString();
-
   const body = {
     parent: { database_id: DB_ID },
     properties: {
@@ -365,6 +504,11 @@ async function submitInquiry() {
     btn.disabled = false;
   }
 }
+
+// 수정 모달 바깥 클릭시 닫기
+document.getElementById('editOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeEditModal();
+});
 
 init();
 </script>
