@@ -9,7 +9,7 @@
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; min-height: 100vh; }
   .top-bar { background: #fff; border-bottom: 1px solid #e8e6e0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
   .top-bar h1 { font-size: 17px; font-weight: 600; color: #1a1a1a; }
-  .top-bar-right { display: flex; gap: 8px; align-items: center; }
+  .top-bar-right { display: flex; gap: 8px; }
   .setup-banner { background: #fff8e6; border: 1px solid #f5c842; border-radius: 10px; padding: 14px 18px; margin: 20px 24px 0; font-size: 14px; color: #7a5c00; display: flex; align-items: center; gap: 10px; }
   .setup-banner.hidden { display: none; }
   .main { padding: 0 24px 40px; max-width: 760px; margin: 0 auto; }
@@ -22,11 +22,9 @@
   .form-group input, .form-group select, .form-group textarea { border: 1px solid #e0deda; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #1a1a1a; background: #fafaf8; outline: none; transition: border .15s; font-family: inherit; }
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #378ADD; background: #fff; }
   .form-group textarea { resize: vertical; min-height: 70px; }
-  .submit-btn { margin-top: 14px; width: 100%; padding: 10px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity .15s; }
+  .submit-btn { margin-top: 14px; width: 100%; padding: 10px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
   .submit-btn:hover { opacity: 0.85; }
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  /* 카드 */
   .inquiry-card { background: #fff; border: 1px solid #e8e6e0; border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; cursor: pointer; transition: box-shadow .15s, border-color .15s; }
   .inquiry-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-color: #ccc; }
   .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -51,10 +49,7 @@
   .action-box { background: #f0faf5; border-radius: 8px; padding: 10px 13px; font-size: 13px; color: #1e6e3a; line-height: 1.65; display: flex; gap: 6px; }
   .action-box::before { content: "→"; font-weight: 700; flex-shrink: 0; }
   .edit-hint { font-size: 11px; color: #bbb; text-align: right; margin-top: 8px; }
-
   .empty-state { text-align: center; padding: 48px 0; color: #bbb; font-size: 14px; line-height: 2; }
-
-  /* 설정 모달 */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 200; }
   .modal-overlay.hidden { display: none; }
   .modal { background: #fff; border-radius: 16px; padding: 24px; width: 90%; max-width: 420px; }
@@ -64,8 +59,6 @@
   .modal input { width: 100%; border: 1px solid #e0deda; border-radius: 8px; padding: 10px 12px; font-size: 13px; outline: none; margin-bottom: 12px; font-family: inherit; }
   .modal input:focus { border-color: #378ADD; }
   .modal-btn { width: 100%; padding: 11px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
-
-  /* 수정 모달 */
   .edit-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 300; padding: 16px; }
   .edit-overlay.hidden { display: none; }
   .edit-modal { background: #fff; border-radius: 16px; padding: 24px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
@@ -81,7 +74,6 @@
   .edit-save-btn { flex: 1; padding: 10px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
   .edit-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .edit-cancel-btn { padding: 10px 20px; background: #f0f0f0; color: #555; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
-
   .filter-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
   .filter-btn { padding: 5px 14px; border-radius: 99px; border: 1px solid #e0deda; background: #fff; color: #666; font-size: 12px; cursor: pointer; transition: all .15s; }
   .filter-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
@@ -176,11 +168,11 @@
     <div class="edit-grid">
       <div class="edit-group">
         <label>이름 *</label>
-        <input type="text" id="e-name" placeholder="이름 입력">
+        <input type="text" id="e-name">
       </div>
       <div class="edit-group">
         <label>전화번호</label>
-        <input type="text" id="e-phone" placeholder="010-0000-0000">
+        <input type="text" id="e-phone">
       </div>
       <div class="edit-group">
         <label>채널 *</label>
@@ -195,7 +187,7 @@
       </div>
       <div class="edit-group">
         <label>담당자</label>
-        <input type="text" id="e-manager" placeholder="담당자 이름">
+        <input type="text" id="e-manager">
       </div>
       <div class="edit-group">
         <label>처리상태</label>
@@ -208,15 +200,15 @@
       </div>
       <div class="edit-group">
         <label>업체명</label>
-        <input type="text" id="e-store" placeholder="업체명 입력">
+        <input type="text" id="e-store">
       </div>
       <div class="edit-group full">
         <label>문의내용 *</label>
-        <textarea id="e-content" placeholder="문의 내용을 입력하세요"></textarea>
+        <textarea id="e-content"></textarea>
       </div>
       <div class="edit-group full">
         <label>처리결과 / 현재 상태</label>
-        <textarea id="e-result" placeholder="처리 중인 내용 또는 결과를 입력하세요" style="min-height:50px;"></textarea>
+        <textarea id="e-result" style="min-height:50px;"></textarea>
       </div>
     </div>
     <div class="edit-btn-row">
@@ -238,6 +230,9 @@ const PROXIES = [
 let apiKey = localStorage.getItem('notion_api_key') || '';
 let currentFilter = '전체';
 let editingPageId = null;
+
+// 카드 데이터를 전역 Map에 저장 → onclick에 데이터 직접 안 넣음 (특수문자 문제 완전 해결)
+const pageDataMap = new Map();
 
 function init() {
   if (apiKey) {
@@ -281,19 +276,13 @@ async function notionFetch(path, method = 'GET', body = null) {
     }
   };
   if (body) opts.body = JSON.stringify(body);
-
   let lastError = null;
   for (const makeUrl of PROXIES) {
     try {
       const res = await fetch(makeUrl(target), opts);
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err);
-      }
+      if (!res.ok) { const err = await res.text(); throw new Error(err); }
       return await res.json();
-    } catch (e) {
-      lastError = e;
-    }
+    } catch (e) { lastError = e; }
   }
   throw lastError || new Error('모든 프록시 실패');
 }
@@ -303,9 +292,7 @@ async function loadInquiries() {
   const list = document.getElementById('inquiryList');
   list.innerHTML = '<div class="loading">불러오는 중...</div>';
   try {
-    const queryBody = {
-      sorts: [{ timestamp: 'created_time', direction: 'descending' }]
-    };
+    const queryBody = { sorts: [{ timestamp: 'created_time', direction: 'descending' }] };
     if (currentFilter !== '전체') {
       queryBody.filter = { property: '처리상태', select: { equals: currentFilter } };
     }
@@ -314,6 +301,7 @@ async function loadInquiries() {
       list.innerHTML = '<div class="empty-state">문의 내역이 없어요</div>';
       return;
     }
+    pageDataMap.clear();
     list.innerHTML = data.results.map(page => renderCard(page)).join('');
   } catch (e) {
     list.innerHTML = `<div class="empty-state">불러오기 실패<br><small style="color:#ccc;font-size:11px">${e.message.slice(0,120)}</small></div>`;
@@ -374,14 +362,16 @@ function renderCard(page) {
   const result  = getProp(page, '처리결과', 'rich_text');
   const manager = getProp(page, '담당자', 'rich_text');
 
+  // 데이터를 Map에 저장하고 ID만 카드에 전달
+  const safeId = page.id.replace(/-/g, '');
+  pageDataMap.set(safeId, { pageId: page.id, name, phone, channel, status, store, content, result, manager });
+
   const initials = name.slice(0, 2);
   const [bg, fg] = avatarColor(name);
   const dateStr = formatDateTime(dateRaw);
 
-  const data = encodeURIComponent(JSON.stringify({ id: page.id, name, phone, channel, status, store, content, result, manager }));
-
   return `
-  <div class="inquiry-card" onclick="openEditModal('${data}')">
+  <div class="inquiry-card" onclick="openEditModal('${safeId}')">
     <div class="card-header">
       <div class="avatar" style="background:${bg};color:${fg}">${initials}</div>
       <div>
@@ -404,9 +394,10 @@ function renderCard(page) {
   </div>`;
 }
 
-function openEditModal(dataEncoded) {
-  const d = JSON.parse(decodeURIComponent(dataEncoded));
-  editingPageId = d.id;
+function openEditModal(safeId) {
+  const d = pageDataMap.get(safeId);
+  if (!d) return;
+  editingPageId = d.pageId;
 
   document.getElementById('e-name').value    = d.name    || '';
   document.getElementById('e-phone').value   = d.phone   || '';
@@ -499,13 +490,12 @@ async function submitInquiry() {
       throw new Error(JSON.stringify(res));
     }
   } catch (e) {
-    alert('저장 실패!\n\n노션 DB에 앱 연결이 되어 있는지 확인해주세요.\n노션 DB → 우측상단 ··· → 연결 → 연결 추가하기');
+    alert('저장 실패!\n\n노션 DB에 앱 연결이 되어 있는지 확인해주세요.');
     btn.textContent = '노션에 저장하기';
     btn.disabled = false;
   }
 }
 
-// 수정 모달 바깥 클릭시 닫기
 document.getElementById('editOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeEditModal();
 });
