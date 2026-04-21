@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리뷰어 문의 관리</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; min-height: 100vh; }
+  .top-bar { background: #fff; border-bottom: 1px solid #e8e6e0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .top-bar h1 { font-size: 17px; font-weight: 600; color: #1a1a1a; }
+  .top-bar-right { display: flex; gap: 8px; align-items: center; }
+  .setup-banner { background: #fff8e6; border: 1px solid #f5c842; border-radius: 10px; padding: 14px 18px; margin: 20px 24px 0; font-size: 14px; color: #7a5c00; display: flex; align-items: center; gap: 10px; }
+  .setup-banner.hidden { display: none; }
+  .main { padding: 0 24px 40px; max-width: 760px; margin: 0 auto; }
+  .section-title { font-size: 13px; color: #999; font-weight: 500; margin: 24px 0 12px; letter-spacing: 0.03em; }
+  .form-card { background: #fff; border: 1px solid #e8e6e0; border-radius: 14px; padding: 18px 20px; margin-bottom: 24px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 12px; color: #888; font-weight: 500; }
+  .form-group input, .form-group select, .form-group textarea { border: 1px solid #e0deda; border-radius: 8px; padding: 8px 10px; font-size: 13px; color: #1a1a1a; background: #fafaf8; outline: none; transition: border .15s; font-family: inherit; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #378ADD; background: #fff; }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+  .submit-btn { margin-top: 14px; width: 100%; padding: 10px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity .15s; }
+  .submit-btn:hover { opacity: 0.85; }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .inquiry-card { background: #fff; border: 1px solid #e8e6e0; border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; }
+  .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+  .card-name { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+  .card-phone { font-size: 12px; color: #aaa; }
+  .card-badges { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .badge-play    { background: #E1F5EE; color: #085041; }
+  .badge-open    { background: #E6F1FB; color: #0C447C; }
+  .badge-phone   { background: #FAEEDA; color: #633806; }
+  .badge-biz     { background: #F1EFE8; color: #444441; }
+  .badge-new     { background: #f0f0f0; color: #555; }
+  .badge-process { background: #fff0cc; color: #7a5500; }
+  .badge-done    { background: #e6f4ea; color: #1e6e3a; }
+  .badge-hold    { background: #fce8e8; color: #9e2a2a; }
+  .card-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 16px; margin-bottom: 12px; font-size: 12px; }
+  .card-meta-item { display: flex; gap: 6px; }
+  .card-meta-label { color: #aaa; min-width: 46px; }
+  .card-meta-value { color: #333; }
+  .content-box { background: #f7f6f3; border-radius: 8px; padding: 10px 13px; font-size: 13px; color: #555; line-height: 1.65; margin-bottom: 8px; }
+  .action-box { background: #f0faf5; border-radius: 8px; padding: 10px 13px; font-size: 13px; color: #1e6e3a; line-height: 1.65; display: flex; gap: 6px; }
+  .action-box::before { content: "→"; font-weight: 700; flex-shrink: 0; }
+  .empty-state { text-align: center; padding: 48px 0; color: #bbb; font-size: 14px; line-height: 2; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 200; }
+  .modal-overlay.hidden { display: none; }
+  .modal { background: #fff; border-radius: 16px; padding: 24px; width: 90%; max-width: 420px; }
+  .modal h2 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .modal p { font-size: 13px; color: #888; margin-bottom: 18px; line-height: 1.6; }
+  .modal label { font-size: 12px; color: #888; font-weight: 500; display: block; margin-bottom: 4px; }
+  .modal input { width: 100%; border: 1px solid #e0deda; border-radius: 8px; padding: 10px 12px; font-size: 13px; outline: none; margin-bottom: 12px; font-family: inherit; }
+  .modal input:focus { border-color: #378ADD; }
+  .modal-btn { width: 100%; padding: 11px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .filter-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-btn { padding: 5px 14px; border-radius: 99px; border: 1px solid #e0deda; background: #fff; color: #666; font-size: 12px; cursor: pointer; transition: all .15s; }
+  .filter-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .loading { text-align: center; padding: 32px; color: #aaa; font-size: 13px; }
+  .settings-btn { background: none; border: 1px solid #e0deda; border-radius: 8px; padding: 6px 12px; font-size: 12px; color: #666; cursor: pointer; }
+  .refresh-btn { background: none; border: 1px solid #e0deda; border-radius: 8px; padding: 6px 12px; font-size: 12px; color: #666; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>리뷰어 문의 관리</h1>
+  <div class="top-bar-right">
+    <button class="refresh-btn" onclick="loadInquiries()">새로고침</button>
+    <button class="settings-btn" onclick="openSettings()">설정</button>
+  </div>
+</div>
+
+<div class="setup-banner" id="setupBanner">
+  ⚠️ 설정이 필요해요. 오른쪽 상단 <strong>&nbsp;설정&nbsp;</strong> 버튼을 눌러 API 키를 입력해주세요.
+</div>
+
+<div class="main">
+  <div class="section-title">새 문의 입력</div>
+  <div class="form-card">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>이름 *</label>
+        <input type="text" id="f-name" placeholder="이름 입력">
+      </div>
+      <div class="form-group">
+        <label>전화번호</label>
+        <input type="text" id="f-phone" placeholder="010-0000-0000">
+      </div>
+      <div class="form-group">
+        <label>채널 *</label>
+        <select id="f-channel">
+          <option value="">선택</option>
+          <option>카채 플레이뷰</option>
+          <option>카채 플레이뷰리뷰어라운지</option>
+          <option>고객센터전화</option>
+          <option>오픈카톡</option>
+          <option>업무폰</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>담당자</label>
+        <input type="text" id="f-manager" placeholder="담당자 이름">
+      </div>
+      <div class="form-group full">
+        <label>업체명</label>
+        <input type="text" id="f-store" placeholder="업체명 입력">
+      </div>
+      <div class="form-group full">
+        <label>문의내용 *</label>
+        <textarea id="f-content" placeholder="문의 내용을 입력하세요"></textarea>
+      </div>
+      <div class="form-group full">
+        <label>처리결과 / 현재 상태</label>
+        <textarea id="f-result" placeholder="처리 중인 내용 또는 결과를 입력하세요" style="min-height:50px;"></textarea>
+      </div>
+    </div>
+    <button class="submit-btn" id="submitBtn" onclick="submitInquiry()">노션에 저장하기</button>
+  </div>
+
+  <div class="section-title">문의 현황</div>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('전체', this)">전체</button>
+    <button class="filter-btn" onclick="setFilter('신규', this)">신규</button>
+    <button class="filter-btn" onclick="setFilter('처리중', this)">처리중</button>
+    <button class="filter-btn" onclick="setFilter('완료', this)">완료</button>
+    <button class="filter-btn" onclick="setFilter('보류', this)">보류</button>
+  </div>
+  <div id="inquiryList"><div class="loading">설정 후 문의 목록이 표시됩니다</div></div>
+</div>
+
+<!-- 설정 모달 -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <h2>노션 연동 설정</h2>
+    <p>노션 API 키를 입력해주세요. 키는 이 기기 브라우저에만 저장되며 외부로 전송되지 않아요.</p>
+    <label>API 키 (ntn_ 또는 secret_ 으로 시작)</label>
+    <input type="password" id="apiKeyInput" placeholder="API 키 입력">
+    <button class="modal-btn" onclick="saveSettings()">저장하고 불러오기</button>
+  </div>
+</div>
+
+<script>
+const DB_ID = '3490bdab578f80b5aee2e845afcc475f';
+const NOTION_API = 'https://api.notion.com/v1';
+
+// 여러 프록시 순서대로 시도 (하나 막히면 다음으로 자동 전환)
+const PROXIES = [
+  t => `https://corsproxy.io/?${encodeURIComponent(t)}`,
+  t => `https://api.allorigins.win/raw?url=${encodeURIComponent(t)}`,
+  t => `https://thingproxy.freeboard.io/fetch/${t}`,
+];
+
+let apiKey = localStorage.getItem('notion_api_key') || '';
+let currentFilter = '전체';
+
+function init() {
+  if (apiKey) {
+    document.getElementById('setupBanner').classList.add('hidden');
+    loadInquiries();
+  } else {
+    openSettings();
+  }
+}
+
+function openSettings() {
+  document.getElementById('apiKeyInput').value = apiKey;
+  document.getElementById('modalOverlay').classList.remove('hidden');
+}
+
+function saveSettings() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key) { alert('API 키를 입력해주세요.'); return; }
+  apiKey = key;
+  localStorage.setItem('notion_api_key', key);
+  document.getElementById('modalOverlay').classList.add('hidden');
+  document.getElementById('setupBanner').classList.add('hidden');
+  loadInquiries();
+}
+
+function setFilter(val, btn) {
+  currentFilter = val;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadInquiries();
+}
+
+async function notionFetch(path, method = 'GET', body = null) {
+  const target = NOTION_API + path;
+  const opts = {
+    method,
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json',
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+
+  let lastError = null;
+  for (const makeUrl of PROXIES) {
+    try {
+      const res = await fetch(makeUrl(target), opts);
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err);
+      }
+      return await res.json();
+    } catch (e) {
+      lastError = e;
+    }
+  }
+  throw lastError || new Error('모든 프록시 실패');
+}
+
+async function loadInquiries() {
+  if (!apiKey) return;
+  const list = document.getElementById('inquiryList');
+  list.innerHTML = '<div class="loading">불러오는 중...</div>';
+  try {
+    const queryBody = {
+      sorts: [{ timestamp: 'created_time', direction: 'descending' }]
+    };
+    if (currentFilter !== '전체') {
+      queryBody.filter = { property: '처리상태', select: { equals: currentFilter } };
+    }
+    const data = await notionFetch(`/databases/${DB_ID}/query`, 'POST', queryBody);
+    if (!data.results || data.results.length === 0) {
+      list.innerHTML = '<div class="empty-state">문의 내역이 없어요</div>';
+      return;
+    }
+    list.innerHTML = data.results.map(page => renderCard(page)).join('');
+  } catch (e) {
+    list.innerHTML = `<div class="empty-state">불러오기 실패<br><small style="color:#ccc;font-size:11px">${e.message.slice(0,120)}</small></div>`;
+  }
+}
+
+function getProp(page, name, type) {
+  const prop = page.properties[name];
+  if (!prop) return '';
+  if (type === 'title') return prop.title?.map(t => t.plain_text).join('') || '';
+  if (type === 'rich_text') return prop.rich_text?.map(t => t.plain_text).join('') || '';
+  if (type === 'select') return prop.select?.name || '';
+  if (type === 'phone') return prop.phone_number || '';
+  if (type === 'date') return prop.date?.start || '';
+  return '';
+}
+
+function channelBadgeClass(ch) {
+  if (!ch) return 'badge-biz';
+  if (ch.includes('플레이뷰')) return 'badge-play';
+  if (ch.includes('오픈카톡')) return 'badge-open';
+  if (ch.includes('전화')) return 'badge-phone';
+  return 'badge-biz';
+}
+
+function statusBadgeClass(st) {
+  if (st === '처리중') return 'badge-process';
+  if (st === '완료') return 'badge-done';
+  if (st === '보류') return 'badge-hold';
+  return 'badge-new';
+}
+
+function avatarColor(name) {
+  const colors = [
+    ['#FAEEDA','#633806'], ['#E1F5EE','#085041'],
+    ['#E6F1FB','#0C447C'], ['#FBEAF0','#72243E'],
+    ['#EAF3DE','#27500A']
+  ];
+  const idx = (name.charCodeAt(0) || 0) % colors.length;
+  return colors[idx];
+}
+
+function formatDateTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function renderCard(page) {
+  const name    = getProp(page, '이름', 'title') || getProp(page, 'Name', 'title');
+  const phone   = getProp(page, '전화번호', 'phone');
+  const channel = getProp(page, '채널', 'select');
+  const status  = getProp(page, '처리상태', 'select');
+  const store   = getProp(page, '업체', 'rich_text');
+  const dateRaw = getProp(page, '문의날짜', 'date');
+  const content = getProp(page, '문의내용', 'rich_text');
+  const result  = getProp(page, '처리결과', 'rich_text');
+  const manager = getProp(page, '담당자', 'rich_text');
+
+  const initials = name.slice(0, 2);
+  const [bg, fg] = avatarColor(name);
+  const dateStr = formatDateTime(dateRaw);
+
+  return `
+  <div class="inquiry-card">
+    <div class="card-header">
+      <div class="avatar" style="background:${bg};color:${fg}">${initials}</div>
+      <div>
+        <div class="card-name">${name}</div>
+        ${phone ? `<div class="card-phone">${phone}</div>` : ''}
+      </div>
+      <div class="card-badges">
+        ${channel ? `<span class="badge ${channelBadgeClass(channel)}">${channel}</span>` : ''}
+        ${status  ? `<span class="badge ${statusBadgeClass(status)}">${status}</span>`   : ''}
+      </div>
+    </div>
+    <div class="card-meta">
+      ${store   ? `<div class="card-meta-item"><span class="card-meta-label">업체</span><span class="card-meta-value">${store}</span></div>`      : ''}
+      ${manager ? `<div class="card-meta-item"><span class="card-meta-label">담당자</span><span class="card-meta-value">${manager}</span></div>`   : ''}
+      ${dateStr ? `<div class="card-meta-item"><span class="card-meta-label">접수일시</span><span class="card-meta-value">${dateStr}</span></div>` : ''}
+    </div>
+    ${content ? `<div class="content-box">${content}</div>` : ''}
+    ${result  ? `<div class="action-box">${result}</div>`   : ''}
+  </div>`;
+}
+
+async function submitInquiry() {
+  if (!apiKey) { openSettings(); return; }
+  const name    = document.getElementById('f-name').value.trim();
+  const content = document.getElementById('f-content').value.trim();
+  const channel = document.getElementById('f-channel').value;
+  if (!name || !content || !channel) { alert('이름, 채널, 문의내용은 필수예요!'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+
+  const now = new Date().toISOString();
+
+  const body = {
+    parent: { database_id: DB_ID },
+    properties: {
+      '이름':     { title:        [{ text: { content: name } }] },
+      '전화번호': { phone_number: document.getElementById('f-phone').value.trim() || null },
+      '채널':     { select:       { name: channel } },
+      '처리상태': { select:       { name: '신규' } },
+      '업체':     { rich_text:    [{ text: { content: document.getElementById('f-store').value.trim() } }] },
+      '담당자':   { rich_text:    [{ text: { content: document.getElementById('f-manager').value.trim() } }] },
+      '문의내용': { rich_text:    [{ text: { content } }] },
+      '처리결과': { rich_text:    [{ text: { content: document.getElementById('f-result').value.trim() } }] },
+      '문의날짜': { date:         { start: now } },
+    }
+  };
+
+  try {
+    const res = await notionFetch('/pages', 'POST', body);
+    if (res.id) {
+      ['f-name','f-phone','f-store','f-manager','f-content','f-result'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-channel').value = '';
+      btn.textContent = '저장 완료! ✓';
+      setTimeout(() => { btn.textContent = '노션에 저장하기'; btn.disabled = false; }, 1500);
+      loadInquiries();
+    } else {
+      throw new Error(JSON.stringify(res));
+    }
+  } catch (e) {
+    alert('저장 실패!\n\n노션 DB에 앱 연결이 되어 있는지 확인해주세요.\n노션 DB → 우측상단 ··· → 연결 → 연결 추가하기');
+    btn.textContent = '노션에 저장하기';
+    btn.disabled = false;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
